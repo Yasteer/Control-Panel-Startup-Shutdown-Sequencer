@@ -7,6 +7,8 @@ VAR
 	
 	MessageToOperator			:	STRING[255]		:=	'';
 	CloseTimer					:	TON;
+	
+	Control_Panel_Radio_Button	:	INT				:=	0;
 END_VAR
 
 VAR_INPUT
@@ -34,7 +36,7 @@ END_VAR]]></Declaration>
       <ST><![CDATA[{Region "Sequencer"}
 CASE State OF
 	FSM_States.Startup_Idle:
-		MessageToOperator		:=	'Conotrol Panel In Idle. Press Start Button To Continue';
+		MessageToOperator		:=	'Control Panel In Idle. Press Start Button To Continue';
 		
 		IF(Control_Panel_Button_Start)THEN
 			State				:=	State + 1;
@@ -105,6 +107,21 @@ CASE State OF
 	ELSE
 		MessageToOperator			:=	'Unknown Sequence State Requested!';	
 END_CASE;
+{endregion}
+
+{Region "Radio Button Decoder"}
+CASE Control_Panel_Radio_Button OF
+	1:
+		Control_Panel_Button_Start	:=	TRUE;
+		Control_Panel_Button_Stop	:=	FALSE;
+	2:
+		Control_Panel_Button_Start	:=	FALSE;
+		Control_Panel_Button_Stop	:=	TRUE;
+	3:
+		Control_Panel_Button_E_Stop	:=	TRUE;
+	ELSE
+		;
+END_CASE
 {endregion}]]></ST>
     </Implementation>
     <LineIds Name="Control_Panel_Sequencer">
@@ -140,6 +157,18 @@ END_CASE;
       <LineId Id="314" Count="1" />
       <LineId Id="246" Count="2" />
       <LineId Id="6" Count="0" />
+      <LineId Id="319" Count="0" />
+      <LineId Id="318" Count="0" />
+      <LineId Id="321" Count="0" />
+      <LineId Id="324" Count="0" />
+      <LineId Id="330" Count="1" />
+      <LineId Id="326" Count="0" />
+      <LineId Id="332" Count="1" />
+      <LineId Id="327" Count="0" />
+      <LineId Id="334" Count="0" />
+      <LineId Id="328" Count="1" />
+      <LineId Id="325" Count="0" />
+      <LineId Id="320" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

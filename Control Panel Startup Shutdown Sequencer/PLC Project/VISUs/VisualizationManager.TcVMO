@@ -21,7 +21,7 @@
             <v n="FileTransferMode">true</v>
             <v n="VisuStyle">"Default, 3.1.6.0 (Beckhoff Automation GmbH)"</v>
             <v n="MaxNumOfClients">100</v>
-            <n n="Language" />
+            <v n="Language">"en"</v>
             <v n="NumpadDialog">"VisuDialogs.Numpad"</v>
             <v n="KeypadDialog">"VisuDialogs.Keypad"</v>
             <v n="InputWithLimitsDialog">"VisuDialogs.TextinputWithLimits"</v>
