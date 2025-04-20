@@ -11,7 +11,6 @@ TYPE FSM_States :
 	Startup_Control_Power_On 	:= 4,
 	Startup_Complete 			:= 5,
 	Shutdown_Request 			:= 6,
-	Shutdown_Complete 			:= 7,
 	Fault_Present 				:= 8,
 	Emergency_Stop 				:= 9
 );

@@ -92,16 +92,19 @@ CASE State OF
 				State				:=	FSM_States.Emergency_Stop;
 			END_IF;
 	FSM_States.Shutdown_Request:
-	
-	FSM_States.Shutdown_Complete:
-	
+			State					:=	FSM_States.Startup_Idle;
+			Control_Circuits_Enable	:=	FALSE;
+			Breaker_Close_Command	:=	FALSE;
 	FSM_States.Fault_Present:
-	
+			Status_Indication_Fault	:=	TRUE;
+			MessageToOperator		:=	'Fault Detected';
 	FSM_States.Emergency_Stop:
-	
+			Control_Circuits_Enable	:=	FALSE;
+			Breaker_Close_Command	:=	FALSE;
+			MessageToOperator		:=	'Emergency Stop Active';
 	ELSE
-		MessageToOperator	:=	'Unknown Sequence State Requested!';	
-END_CASE
+		MessageToOperator			:=	'Unknown Sequence State Requested!';	
+END_CASE;
 {endregion}]]></ST>
     </Implementation>
     <LineIds Name="Control_Panel_Sequencer">
@@ -129,7 +132,13 @@ END_CASE
       <LineId Id="277" Count="0" />
       <LineId Id="279" Count="2" />
       <LineId Id="278" Count="0" />
-      <LineId Id="238" Count="10" />
+      <LineId Id="238" Count="1" />
+      <LineId Id="310" Count="1" />
+      <LineId Id="242" Count="1" />
+      <LineId Id="313" Count="0" />
+      <LineId Id="244" Count="1" />
+      <LineId Id="314" Count="1" />
+      <LineId Id="246" Count="2" />
       <LineId Id="6" Count="0" />
     </LineIds>
   </POU>

@@ -2,6 +2,9 @@
 <TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4024.66">
 	<Project ProjectGUID="{9A8F25B9-A83B-4069-8951-E043520A726C}" Target64Bit="true" ShowHideConfigurations="#x6">
 		<System>
+			<Settings MaxCpus="4" NonWinCpus="3">
+				<Cpu CpuId="1"/>
+			</Settings>
 			<Tasks>
 				<Task Id="3" Priority="20" CycleTime="100000" AmsPort="350" AdtTasks="true">
 					<Name>PlcTask</Name>
@@ -10,15 +13,23 @@
 		</System>
 		<Plc>
 			<Project GUID="{2646D729-2E2F-4384-9BB7-CB723FC99D0B}" Name="PLC Project" PrjFilePath="PLC Project\PLC Project.plcproj" TmcFilePath="PLC Project\PLC Project.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="PLC Project\PLC Project.tmc" TmcHash="{7F71CD2E-86BF-5DEB-EB13-887FA37B3D01}">
 					<Name>PLC Project Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Contexts>
 						<Context>
-							<Id>1</Id>
-							<Name>Default</Name>
+							<Id>0</Id>
+							<Name>PlcTask</Name>
+							<ManualConfig>
+								<OTCID>#x02010030</OTCID>
+							</ManualConfig>
+							<Priority>20</Priority>
+							<CycleTime>10000000</CycleTime>
 						</Context>
 					</Contexts>
+					<TaskPouOids>
+						<TaskPouOid Prio="20" OTCID="#x08502001"/>
+					</TaskPouOids>
 				</Instance>
 			</Project>
 		</Plc>
