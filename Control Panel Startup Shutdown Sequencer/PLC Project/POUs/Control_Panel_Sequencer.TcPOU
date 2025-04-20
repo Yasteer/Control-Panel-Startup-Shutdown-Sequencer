@@ -25,7 +25,6 @@ VAR_OUTPUT
 	Status_Indication_On		:	BOOL			:=	FALSE;
 	Status_Indication_Off		:	BOOL			:=	FALSE;
 	Status_Indication_Fault		:	BOOL			:=	FALSE;
-	Status_Indication_Alarm		:	BOOL			:=	FALSE;
 END_VAR
 
 VAR CONSTANT
@@ -67,9 +66,31 @@ CASE State OF
 			END_IF;		
 		END_IF;
 	FSM_States.Startup_Control_Power_On:
+		Control_Circuits_Enable		:=	TRUE;
+		MessageToOperator			:=	'Enabling Control Circuits';
 		
+		IF(NOT CloseTimer.Q)THEN
+			CloseTimer(IN	:=	TRUE,	PT	:=	CloseTime);
+		ELSE
+			State					:=	State + 1;
+			CloseTimer(IN	:=	FALSE,	PT	:=	CloseTime);
+		END_IF;
 	FSM_States.Startup_Complete:
-	
+			MessageToOperator		:=	'Startup Successfull! Panel Is Ready To Run';
+			
+			Status_Indication_On	:=	TRUE;
+			Status_Indication_Off	:=	FALSE;
+			Status_Indication_Fault	:=	FALSE;
+			
+			//	Check For Stop Command
+			IF(Control_Panel_Button_Stop)THEN
+				State				:=	State + 1;
+			END_IF;
+			
+			//	Check For Emergency Stop Command
+			IF(Control_Panel_Button_Stop)THEN
+				State				:=	FSM_States.Emergency_Stop;
+			END_IF;
 	FSM_States.Shutdown_Request:
 	
 	FSM_States.Shutdown_Complete:
@@ -93,7 +114,22 @@ END_CASE
       <LineId Id="254" Count="3" />
       <LineId Id="251" Count="0" />
       <LineId Id="225" Count="0" />
-      <LineId Id="234" Count="14" />
+      <LineId Id="234" Count="1" />
+      <LineId Id="259" Count="0" />
+      <LineId Id="267" Count="0" />
+      <LineId Id="260" Count="1" />
+      <LineId Id="263" Count="0" />
+      <LineId Id="266" Count="0" />
+      <LineId Id="264" Count="0" />
+      <LineId Id="262" Count="0" />
+      <LineId Id="236" Count="1" />
+      <LineId Id="268" Count="4" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="273" Count="2" />
+      <LineId Id="277" Count="0" />
+      <LineId Id="279" Count="2" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="238" Count="10" />
       <LineId Id="6" Count="0" />
     </LineIds>
   </POU>
