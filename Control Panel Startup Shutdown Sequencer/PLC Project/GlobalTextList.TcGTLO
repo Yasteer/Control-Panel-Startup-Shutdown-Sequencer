@@ -28,6 +28,11 @@ Status"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
+              <v n="TextID">"340"</v>
+              <v n="TextDefault">"Breaker Feedback"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
               <v n="TextID">"428"</v>
               <v n="TextDefault">"Breaker Status"</v>
               <l n="LanguageTexts" t="ArrayList" />
@@ -61,8 +66,23 @@ Status"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
+              <v n="TextID">"697"</v>
+              <v n="TextDefault">"ET"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
               <v n="TextID">"478"</v>
               <v n="TextDefault">"FSM State:"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
+              <v n="TextID">"553"</v>
+              <v n="TextDefault">"PT"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
+              <v n="TextID">"790"</v>
+              <v n="TextDefault">"Simulation Variables"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
@@ -86,6 +106,16 @@ Status"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
+              <v n="TextID">"808"</v>
+              <v n="TextDefault">"test"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
+              <v n="TextID">"367"</v>
+              <v n="TextDefault">"Timeout Monitoring"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
               <v n="TextID">"436"</v>
               <v n="TextDefault">"Voltage"</v>
               <l n="LanguageTexts" t="ArrayList" />
@@ -94,6 +124,11 @@ Status"</v>
               <v n="TextID">"409"</v>
               <v n="TextDefault">"Voltage
 Status"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
+              <v n="TextID">"555"</v>
+              <v n="TextDefault">"Voltage Monitoring Relay Healthy"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>

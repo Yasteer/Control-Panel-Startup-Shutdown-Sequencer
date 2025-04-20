@@ -7,7 +7,7 @@ VAR
 	
 	MessageToOperator			:	STRING[255]		:=	'';
 	CloseTimer					:	TON;
-	
+	SingleShotPulse				:	BOOL			:=	FALSE;
 	Control_Panel_Radio_Button	:	INT				:=	0;
 END_VAR
 
@@ -16,7 +16,7 @@ VAR_INPUT
 	Control_Panel_Button_Stop	:	BOOL			:=	FALSE;
 	Control_Panel_Button_E_Stop	:	BOOL			:=	FALSE;
 	
-	Voltage_Available			:	BOOL			:=	FALSE;
+	Voltage_Available			:	BOOL			:=	FALSE;		//	Input From Voltage Monitoring Relay (VMR)
 	Breaker_Closed_Feedback		:	BOOL			:=	FALSE;
 END_VAR
 
@@ -30,27 +30,39 @@ VAR_OUTPUT
 END_VAR
 
 VAR CONSTANT
-	CloseTime					:	TIME			:=	T#3S;
+	CloseTime					:	TIME			:=	T#5S;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[{Region "Sequencer"}
 CASE State OF
 	FSM_States.Startup_Idle:
-		MessageToOperator		:=	'Control Panel In Idle. Press Start Button To Continue';
+		MessageToOperator				:=	'Control Panel In Idle. Press Start Button To Continue';
+		Status_Indication_Fault			:=	FALSE;
 		
 		IF(Control_Panel_Button_Start)THEN
-			State				:=	State + 1;
-			MessageToOperator	:=	'Start Button Pressed';
+			State						:=	State + 1;
+			MessageToOperator			:=	'Start Button Pressed';
 		END_IF;
 	FSM_States.Startup_Power_Check:
-		IF(Voltage_Available)THEN
-			State				:=	FSM_States.Startup_Breaker_Engage;
+		MessageToOperator				:=	'Evaluating Voltage Monitoring Relay (VMR)';
+		
+		IF(NOT CloseTimer.Q)THEN
+			CloseTimer(IN	:= TRUE,	PT	:=	CloseTime);
 		ELSE
-			State				:=	FSM_States.Fault_Present;
-			MessageToOperator	:=	'No Voltage Is Present For Control Panel Operation';
+			CloseTimer(IN	:= FALSE,	PT	:=	CloseTime);
+			
+			IF(Voltage_Available)THEN
+				State					:=	FSM_States.Startup_Breaker_Engage;
+				MessageToOperator		:=	'VMR Healthy';
+			ELSE
+				State					:=	FSM_States.Fault_Present;
+				MessageToOperator		:=	'VMR Fault Detected';
+			END_IF;
 		END_IF;
 	FSM_States.Startup_Breaker_Engage:
-		Breaker_Close_Command	:=	TRUE;
+		Breaker_Close_Command			:=	TRUE;
+		
+		MessageToOperator				:=	'Evaluating Breaker Feedback';
 		
 		//	Breaker Has XX Seconds In Which To Close Or Else A Fault May Be Present On The Device Or In The Circuit
 		IF(NOT CloseTimer.Q)THEN
@@ -60,72 +72,101 @@ CASE State OF
 			
 			//	Check Breaker Feedback Matches Up With Breaker Command Signal
 			IF(Breaker_Closed_Feedback)THEN
-				State				:=	State + 1;
-				MessageToOperator	:=	'Breaker Closed Successfully';
+				State					:=	State + 1;
+				MessageToOperator		:=	'Breaker Closed Successfully';
 			ELSE
-				State				:=	FSM_States.Fault_Present;
-				MessageToOperator	:=	'Breaker Failed To Close';
+				State					:=	FSM_States.Fault_Present;
+				MessageToOperator		:=	'Breaker Failed To Close';
 			END_IF;		
 		END_IF;
 	FSM_States.Startup_Control_Power_On:
-		Control_Circuits_Enable		:=	TRUE;
-		MessageToOperator			:=	'Enabling Control Circuits';
+		Control_Circuits_Enable			:=	TRUE;
+		MessageToOperator				:=	'Enabling Control Circuits';
 		
 		IF(NOT CloseTimer.Q)THEN
 			CloseTimer(IN	:=	TRUE,	PT	:=	CloseTime);
 		ELSE
-			State					:=	State + 1;
+			State						:=	State + 1;
 			CloseTimer(IN	:=	FALSE,	PT	:=	CloseTime);
 		END_IF;
 	FSM_States.Startup_Complete:
-			MessageToOperator		:=	'Startup Successfull! Panel Is Ready To Run';
+			MessageToOperator			:=	'Startup Successfull! Panel Is Ready To Run';
 			
-			Status_Indication_On	:=	TRUE;
-			Status_Indication_Off	:=	FALSE;
-			Status_Indication_Fault	:=	FALSE;
+			Status_Indication_On		:=	TRUE;
+			Status_Indication_Off		:=	FALSE;
+			Status_Indication_Fault		:=	FALSE;
 			
 			//	Check For Stop Command
 			IF(Control_Panel_Button_Stop)THEN
-				State				:=	State + 1;
+				State					:=	State + 1;
 			END_IF;
 			
 			//	Check For Emergency Stop Command
 			IF(Control_Panel_Button_Stop)THEN
-				State				:=	FSM_States.Emergency_Stop;
+				State					:=	FSM_States.Emergency_Stop;
 			END_IF;
 	FSM_States.Shutdown_Request:
-			State					:=	FSM_States.Startup_Idle;
-			Control_Circuits_Enable	:=	FALSE;
-			Breaker_Close_Command	:=	FALSE;
+			State						:=	FSM_States.Startup_Idle;
+			
+			Control_Panel_Button_Stop	:=	FALSE;
+			Control_Panel_Button_Start	:=	FALSE;
+			
+			Control_Circuits_Enable		:=	FALSE;
+			Breaker_Close_Command		:=	FALSE;
+			
+			SingleShotPulse				:=	FALSE;
+			
+			MessageToOperator			:=	'Shutdown Complete!';
 	FSM_States.Fault_Present:
-			Status_Indication_Fault	:=	TRUE;
-			MessageToOperator		:=	'Fault Detected';
+			Status_Indication_Fault		:=	TRUE;
+			MessageToOperator			:=	'Fault Detected';
 	FSM_States.Emergency_Stop:
-			Control_Circuits_Enable	:=	FALSE;
-			Breaker_Close_Command	:=	FALSE;
-			MessageToOperator		:=	'Emergency Stop Active';
+			Control_Circuits_Enable		:=	FALSE;
+			Breaker_Close_Command		:=	FALSE;
+			Breaker_Closed_Feedback		:=	FALSE;
+			MessageToOperator			:=	'Emergency Stop Active';
 	ELSE
-		MessageToOperator			:=	'Unknown Sequence State Requested!';	
+		MessageToOperator				:=	'Unknown Sequence State Requested!';	
 END_CASE;
 {endregion}
 
 {Region "Radio Button Decoder"}
 CASE Control_Panel_Radio_Button OF
+	0:
+		Control_Panel_Button_Start		:=	FALSE;
+		Control_Panel_Button_Stop		:=	TRUE;
+		
+		IF(NOT SingleShotPulse)THEN
+			State						:=	FSM_States.Shutdown_Request;
+			SingleShotPulse				:=	TRUE;
+		END_IF
+		
 	1:
-		Control_Panel_Button_Start	:=	TRUE;
-		Control_Panel_Button_Stop	:=	FALSE;
+		Control_Panel_Button_Start		:=	TRUE;
+		Control_Panel_Button_Stop		:=	FALSE;
 	2:
-		Control_Panel_Button_Start	:=	FALSE;
-		Control_Panel_Button_Stop	:=	TRUE;
-	3:
-		Control_Panel_Button_E_Stop	:=	TRUE;
+		Control_Panel_Button_E_Stop		:=	TRUE;
+		
+		State							:=	FSM_States.Emergency_Stop;
 	ELSE
 		;
 END_CASE
 {endregion}]]></ST>
     </Implementation>
     <LineIds Name="Control_Panel_Sequencer">
-      <LineId Id="202" Count="17" />
+      <LineId Id="202" Count="3" />
+      <LineId Id="403" Count="0" />
+      <LineId Id="206" Count="5" />
+      <LineId Id="365" Count="2" />
+      <LineId Id="369" Count="0" />
+      <LineId Id="371" Count="2" />
+      <LineId Id="375" Count="1" />
+      <LineId Id="380" Count="0" />
+      <LineId Id="377" Count="2" />
+      <LineId Id="374" Count="0" />
+      <LineId Id="370" Count="0" />
+      <LineId Id="218" Count="1" />
+      <LineId Id="400" Count="1" />
       <LineId Id="249" Count="0" />
       <LineId Id="220" Count="4" />
       <LineId Id="250" Count="0" />
@@ -150,11 +191,17 @@ END_CASE
       <LineId Id="279" Count="2" />
       <LineId Id="278" Count="0" />
       <LineId Id="238" Count="1" />
+      <LineId Id="388" Count="1" />
+      <LineId Id="391" Count="0" />
+      <LineId Id="390" Count="0" />
       <LineId Id="310" Count="1" />
+      <LineId Id="396" Count="3" />
       <LineId Id="242" Count="1" />
       <LineId Id="313" Count="0" />
       <LineId Id="244" Count="1" />
-      <LineId Id="314" Count="1" />
+      <LineId Id="314" Count="0" />
+      <LineId Id="404" Count="0" />
+      <LineId Id="315" Count="0" />
       <LineId Id="246" Count="2" />
       <LineId Id="6" Count="0" />
       <LineId Id="319" Count="0" />
@@ -162,10 +209,16 @@ END_CASE
       <LineId Id="321" Count="0" />
       <LineId Id="324" Count="0" />
       <LineId Id="330" Count="1" />
+      <LineId Id="386" Count="0" />
+      <LineId Id="392" Count="1" />
+      <LineId Id="395" Count="0" />
+      <LineId Id="394" Count="0" />
+      <LineId Id="387" Count="0" />
       <LineId Id="326" Count="0" />
       <LineId Id="332" Count="1" />
       <LineId Id="327" Count="0" />
       <LineId Id="334" Count="0" />
+      <LineId Id="384" Count="1" />
       <LineId Id="328" Count="1" />
       <LineId Id="325" Count="0" />
       <LineId Id="320" Count="0" />
