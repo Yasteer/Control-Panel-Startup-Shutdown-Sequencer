@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="Control_Panel_Sequencer" Id="{313a5a78-9a0e-4aa8-99a0-d2d3b46668f2}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Control_Panel_Sequencer
+VAR
+	State						:	INT				:=	FSM_States.Startup_Idle;
+	
+	MessageToOperator			:	STRING[255]		:=	'';
+	CloseTimer					:	TON;
+END_VAR
+
+VAR_INPUT
+	Control_Panel_Button_Start	:	BOOL			:=	FALSE;
+	Control_Panel_Button_Stop	:	BOOL			:=	FALSE;
+	Control_Panel_Button_E_Stop	:	BOOL			:=	FALSE;
+	
+	Voltage_Available			:	BOOL			:=	FALSE;
+	Breaker_Closed_Feedback		:	BOOL			:=	FALSE;
+END_VAR
+
+VAR_OUTPUT
+	Breaker_Close_Command		:	BOOL			:=	FALSE;
+	Control_Circuits_Enable		:	BOOL			:=	FALSE;
+	
+	Status_Indication_On		:	BOOL			:=	FALSE;
+	Status_Indication_Off		:	BOOL			:=	FALSE;
+	Status_Indication_Fault		:	BOOL			:=	FALSE;
+	Status_Indication_Alarm		:	BOOL			:=	FALSE;
+END_VAR
+
+VAR CONSTANT
+	CloseTime					:	TIME			:=	T#3S;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[{Region "Sequencer"}
+CASE State OF
+	FSM_States.Startup_Idle:
+		MessageToOperator		:=	'Conotrol Panel In Idle. Press Start Button To Continue';
+		
+		IF(Control_Panel_Button_Start)THEN
+			State				:=	State + 1;
+			MessageToOperator	:=	'Start Button Pressed';
+		END_IF;
+	FSM_States.Startup_Power_Check:
+		IF(Voltage_Available)THEN
+			State				:=	FSM_States.Startup_Breaker_Engage;
+		ELSE
+			State				:=	FSM_States.Fault_Present;
+			MessageToOperator	:=	'No Voltage Is Present For Control Panel Operation';
+		END_IF;
+	FSM_States.Startup_Breaker_Engage:
+		Breaker_Close_Command	:=	TRUE;
+		
+		//	Breaker Has XX Seconds In Which To Close Or Else A Fault May Be Present On The Device Or In The Circuit
+		IF(NOT CloseTimer.Q)THEN
+			CloseTimer(IN	:= 	TRUE,	PT	:=	CloseTime);
+		ELSE
+			CloseTimer(IN	:=	FALSE,	PT	:=	CloseTime);
+			
+			//	Check Breaker Feedback Matches Up With Breaker Command Signal
+			IF(Breaker_Closed_Feedback)THEN
+				State				:=	State + 1;
+				MessageToOperator	:=	'Breaker Closed Successfully';
+			ELSE
+				State				:=	FSM_States.Fault_Present;
+				MessageToOperator	:=	'Breaker Failed To Close';
+			END_IF;		
+		END_IF;
+	FSM_States.Startup_Control_Power_On:
+		
+	FSM_States.Startup_Complete:
+	
+	FSM_States.Shutdown_Request:
+	
+	FSM_States.Shutdown_Complete:
+	
+	FSM_States.Fault_Present:
+	
+	FSM_States.Emergency_Stop:
+	
+	ELSE
+		MessageToOperator	:=	'Unknown Sequence State Requested!';	
+END_CASE
+{endregion}]]></ST>
+    </Implementation>
+    <LineIds Name="Control_Panel_Sequencer">
+      <LineId Id="202" Count="17" />
+      <LineId Id="249" Count="0" />
+      <LineId Id="220" Count="4" />
+      <LineId Id="250" Count="0" />
+      <LineId Id="252" Count="1" />
+      <LineId Id="258" Count="0" />
+      <LineId Id="254" Count="3" />
+      <LineId Id="251" Count="0" />
+      <LineId Id="225" Count="0" />
+      <LineId Id="234" Count="14" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

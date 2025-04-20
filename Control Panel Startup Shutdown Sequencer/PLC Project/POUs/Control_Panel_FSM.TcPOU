@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="Control_Panel_FSM" Id="{25b0d9bf-0951-41c2-af0f-f76219c646b4}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Control_Panel_FSM
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <LineIds Name="Control_Panel_FSM">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

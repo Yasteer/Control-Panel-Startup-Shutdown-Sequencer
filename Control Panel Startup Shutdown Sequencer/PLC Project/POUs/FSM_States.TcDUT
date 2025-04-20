@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <DUT Name="FSM_States" Id="{c3278140-911d-44c0-b293-1d1a57a5572e}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE FSM_States :
+(
+	Startup_Idle 				:= 1,
+	Startup_Power_Check 		:= 2,
+	Startup_Breaker_Engage 		:= 3,
+	Startup_Control_Power_On 	:= 4,
+	Startup_Complete 			:= 5,
+	Shutdown_Request 			:= 6,
+	Shutdown_Complete 			:= 7,
+	Fault_Present 				:= 8,
+	Emergency_Stop 				:= 9
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>
