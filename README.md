@@ -5,7 +5,11 @@ This TwinCAT 3 PLC project simulates the **start-up and shutdown sequence of an 
 It demonstrates electrical control principles such as interlocking, safety logic, simulated voltage detection, and orderly power sequencing—common in MCCs, switchgear, and process control applications.
 
 ---
+Normal Operation:
 ![Control Panel Demo](SequencerDemo.gif)
+
+Fault Detection
+![Control Panel Demo](SequencerFaultDemo.gif)
 ---
 
 ## 📁 Project Overview
@@ -85,8 +89,6 @@ The project includes a simple TwinCAT HMI (or panel layout sketch) to show:
 - Buttons for start/stop
 - Alarm/fault state
 - Breaker simulation
-
-![Control Panel Visualization](insert-your-image-or-path-here.png)
 
 ---
 
